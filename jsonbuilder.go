@@ -1,4 +1,4 @@
-package github.com/steviesama/jsonbuilder
+package jsonbuilder
 
 import (
   "fmt"
