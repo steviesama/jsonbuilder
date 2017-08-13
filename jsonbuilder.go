@@ -59,7 +59,7 @@ func (j *JsonBuilder) GetLine(jsonVarName string, value interface{}, isLastLine 
 	data += fmt.Sprintf("%s\"%s\": ", indentation, jsonVarName)
 	switch value.(type) {
 		case string:
-			return data + fmt.Sprintf("\"%s\"%s\n", EscapeJson(value), commaString)
+			return data + fmt.Sprintf("\"%s\"%s\n", EscapeJson(value.(string)), commaString)
 		case float32:
 			return data + fmt.Sprintf("\"%f\"%s\n", value, commaString)
 		case float64:
@@ -75,7 +75,7 @@ func (j *JsonBuilder) Add(jsonVarName string, value interface{}) {
 	j.Data += fmt.Sprintf("%s\"%s\": ", indentation, jsonVarName)
 	switch value.(type) {
 		case string:
-			j.Data += fmt.Sprintf("\"%s\",\n", EscapeJson(value))
+			j.Data += fmt.Sprintf("\"%s\",\n", EscapeJson(value.(string)))
 		default:
 			j.Data += fmt.Sprintf("%d,\n", value)
 	}
@@ -87,7 +87,7 @@ func (j *JsonBuilder) AddLast(jsonVarName string, value interface{}) {
 	j.Data += fmt.Sprintf("%s\"%s\": ", indentation, jsonVarName)
 	switch value.(type) {
 		case string:
-			j.Data += fmt.Sprintf("\"%s\"\n", EscapeJson(value))
+			j.Data += fmt.Sprintf("\"%s\"\n", EscapeJson(value.(string)))
 		default:
 			j.Data += fmt.Sprintf("%d\n", value)
 	}
