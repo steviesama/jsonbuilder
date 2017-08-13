@@ -2,6 +2,7 @@ package jsonbuilder
 
 import (
   "fmt"
+	"bytes"
   "strings"
   "reflect"
 )
@@ -58,10 +59,10 @@ func (j *JsonBuilder) GetLine(jsonVarName string, value interface{}, isLastLine 
 	data += fmt.Sprintf("%s\"%s\": ", indentation, jsonVarName)
 	switch value.(type) {
 		case string:
-			return data + fmt.Sprintf("\"%s\"%s\n", value, commaString)
+			return data + fmt.Sprintf("\"%s\"%s\n", EscapeJson(value), commaString)
 		case float32:
-      return data + fmt.Sprintf("\"%f\"%s\n", value, commaString)
-    case float64:
+			return data + fmt.Sprintf("\"%f\"%s\n", value, commaString)
+		case float64:
 			return data + fmt.Sprintf("\"%f\"%s\n", value, commaString)
 		default:
 			return data + fmt.Sprintf("%d%s\n", value, commaString)
@@ -74,7 +75,7 @@ func (j *JsonBuilder) Add(jsonVarName string, value interface{}) {
 	j.Data += fmt.Sprintf("%s\"%s\": ", indentation, jsonVarName)
 	switch value.(type) {
 		case string:
-			j.Data += fmt.Sprintf("\"%s\",\n", value)
+			j.Data += fmt.Sprintf("\"%s\",\n", EscapeJson(value))
 		default:
 			j.Data += fmt.Sprintf("%d,\n", value)
 	}
@@ -86,10 +87,23 @@ func (j *JsonBuilder) AddLast(jsonVarName string, value interface{}) {
 	j.Data += fmt.Sprintf("%s\"%s\": ", indentation, jsonVarName)
 	switch value.(type) {
 		case string:
-			j.Data += fmt.Sprintf("\"%s\"\n", value)
+			j.Data += fmt.Sprintf("\"%s\"\n", EscapeJson(value))
 		default:
 			j.Data += fmt.Sprintf("%d\n", value)
 	}
+	j.EndLevel()
+}
+func (j *JsonBuilder) AddJson(jsonVarName string, value string) {
+	indentation := ""
+	for i := 0; i < j.CurrentDepth; i++ { indentation += "\t"}
+	j.Data += fmt.Sprintf("%s\"%s\": ", indentation, jsonVarName)
+	j.Data += fmt.Sprintf("%s,\n", value)
+}
+func (j *JsonBuilder) AddLastJson(jsonVarName string, value interface{}) {
+	indentation := ""
+	for i := 0; i < j.CurrentDepth; i++ { indentation += "\t"}
+	j.Data += fmt.Sprintf("%s\"%s\": ", indentation, jsonVarName)
+	j.Data += fmt.Sprintf("%s\n", value)
 	j.EndLevel()
 }
 
@@ -175,4 +189,25 @@ func GetJsonTag(i interface{}, fieldName string) string {
 	}
 	tag := strings.Split(strings.Split(string(field.Tag), ":")[1], "\"")[1]
 	return tag
+}
+
+func EscapeJson(src string) string {
+	var chars bytes.Buffer
+	srcRunes := []rune(src)
+	escapeChars := []rune("\b\f\n\r\t\"\\")
+	escapeValues := []string{`\b`, `\f`, `\n`, `\r`, `\t`, `\"`, `\\`}
+	var index int
+	for i := 0; i < len(srcRunes); i++ {
+		index = IndexOfRune(escapeChars, srcRunes[i])
+		if index != -1 { chars.WriteString(string(escapeValues[index]))
+		} else { chars.WriteString(string(srcRunes[i])) }
+	}
+	return chars.String()
+}
+
+func IndexOfRune(runes []rune, r rune) int {
+	for i := 0; i < len(runes); i++ {
+		if runes[i] == r { return i }
+	}
+	return -1
 }
