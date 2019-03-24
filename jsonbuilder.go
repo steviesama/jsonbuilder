@@ -61,9 +61,9 @@ func (j *JsonBuilder) GetLine(jsonVarName string, value interface{}, isLastLine 
     case string:
       return data + fmt.Sprintf("\"%s\"%s\n", EscapeJson(value.(string)), commaString)
     case float32:
-      return data + fmt.Sprintf("\"%f\"%s\n", value, commaString)
+      return data + fmt.Sprintf("%f%s\n", value, commaString)
     case float64:
-      return data + fmt.Sprintf("\"%f\"%s\n", value, commaString)
+      return data + fmt.Sprintf("%f%s\n", value, commaString)
     default:
       return data + fmt.Sprintf("%d%s\n", value, commaString)
   }
